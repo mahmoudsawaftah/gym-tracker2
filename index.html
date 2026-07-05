@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>برنامجي | Iron Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0D10;
+    --surface:#15181D;
+    --surface-2:#1D2127;
+    --line:#262B32;
+    --text:#EDEEF0;
+    --muted:#8A8F98;
+    --accent:#E8A33D;
+    --accent-dim:#4a3a1f;
+    --accent-2:#3DA9E8;
+    --danger:#E8543D;
+    --success:#4CAF7D;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Tajawal',sans-serif; padding-bottom:120px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  h1,h2,h3,.disp{font-family:'Cairo',sans-serif;}
+  a{color:inherit;}
+
+  /* ---- Top bar ---- */
+  header{
+    position:sticky; top:0; z-index:20;
+    background:rgba(11,13,16,.92); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    padding:14px 16px 10px;
+  }
+  .brand{display:flex; align-items:center; justify-content:space-between;}
+  .brand h1{font-size:20px; font-weight:800; margin:0; letter-spacing:.3px;}
+  .brand h1 span{color:var(--accent);}
+  .plate{
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; color:var(--accent);
+    background:conic-gradient(var(--accent) calc(var(--pct,0)*1%), var(--surface-2) 0);
+    position:relative;
+  }
+  .plate::after{
+    content:""; position:absolute; inset:5px; border-radius:50%;
+    background:var(--bg);
+  }
+  .plate b{position:relative; z-index:1;}
+
+  /* ---- Day tabs ---- */
+  .tabs{display:flex; gap:8px; overflow-x:auto; margin-top:12px; padding-bottom:4px; scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto; padding:8px 16px; border-radius:999px;
+    background:var(--surface); border:1px solid var(--line);
+    color:var(--muted); font-size:13px; font-weight:700; cursor:pointer;
+    white-space:nowrap; transition:.15s;
+  }
+  .tab.active{background:var(--accent); color:#191204; border-color:var(--accent);}
+
+  main{padding:16px; max-width:640px; margin:0 auto;}
+  .day-title{font-size:15px; color:var(--muted); margin:4px 0 16px; display:flex; justify-content:space-between; align-items:center;}
+  .day-title b{color:var(--text); font-family:'Cairo',sans-serif;}
+
+  /* ---- Exercise card ---- */
+  .card{
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; padding:14px 16px; margin-bottom:12px;
+  }
+  .card.done{border-color:var(--success); box-shadow:0 0 0 1px var(--success) inset;}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .ex-name{font-family:'Cairo',sans-serif; font-weight:700; font-size:16px; margin:0;}
+  .ex-name small{display:block; font-family:'Tajawal',sans-serif; font-weight:400; color:var(--muted); font-size:12px; margin-top:2px;}
+  .chk{
+    width:26px; height:26px; border-radius:50%; border:2px solid var(--line);
+    flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:transparent; font-size:14px; user-select:none;
+  }
+  .card.done .chk{background:var(--success); border-color:var(--success); color:#08130d;}
+
+  .meta{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0;}
+  .pill{background:var(--surface-2); color:var(--muted); font-size:11px; padding:4px 9px; border-radius:8px;}
+  .pill.warn{background:#3a2412; color:var(--accent);}
+
+  .muscle-line{font-size:12.5px; color:var(--muted); line-height:1.7; margin:8px 0;}
+  .muscle-line b{color:var(--text);}
+
+  .row{display:flex; gap:8px; align-items:center; margin-top:10px;}
+  .log input{
+    width:100%; background:var(--surface-2); border:1px solid var(--line);
+    color:var(--text); border-radius:10px; padding:9px 10px; font-size:13px; font-family:'Tajawal';
+  }
+  .log label{font-size:10px; color:var(--muted); display:block; margin-bottom:3px;}
+  .log-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;}
+
+  .btnrow{display:flex; gap:8px; margin-top:12px;}
+  .btn{
+    flex:1; text-align:center; padding:10px; border-radius:10px;
+    font-size:13px; font-weight:700; cursor:pointer; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--text); text-decoration:none;
+  }
+  .btn.video{background:var(--accent); color:#191204; border-color:var(--accent);}
+  .btn.pr{background:transparent; color:var(--accent-2); border-color:var(--accent-2);}
+
+  .note{font-size:12px; color:var(--muted); margin-top:10px; border-top:1px dashed var(--line); padding-top:8px;}
+  .verify-tag{font-size:10px; padding:2px 7px; border-radius:6px; margin-right:6px;}
+  .v-high{background:#1c3a2a; color:var(--success);}
+  .v-fallback{background:#2a2418; color:var(--accent);}
+
+  /* ---- Rest timer floating ---- */
+  .timer-fab{
+    position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+    padding:10px 14px; display:flex; align-items:center; gap:10px; z-index:30;
+    box-shadow:0 8px 24px rgba(0,0,0,.5); min-width:280px; max-width:92vw;
+  }
+  .timer-num{font-family:'Cairo'; font-size:22px; font-weight:800; min-width:56px; text-align:center;}
+  .timer-presets{display:flex; gap:5px; flex:1;}
+  .timer-presets button{
+    background:var(--surface-2); color:var(--muted); border:none; border-radius:8px;
+    padding:6px 0; flex:1; font-size:11px; font-weight:700; cursor:pointer;
+  }
+  .timer-presets button.on{background:var(--accent); color:#191204;}
+  .timer-go{background:var(--accent-2); color:#04202e; border:none; border-radius:10px; width:38px; height:38px; font-size:16px; cursor:pointer;}
+
+  /* ---- Progress page ---- */
+  .stat-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:14px;}
+  .stat-card h3{margin:0 0 12px; font-size:14px; color:var(--muted);}
+  canvas{width:100%; height:180px; display:block;}
+
+  .empty{color:var(--muted); font-size:13px; text-align:center; padding:40px 10px;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Iron <span>Log</span></h1>
+    <div class="plate" id="weekPlate" style="--pct:0"><b id="weekPct">0%</b></div>
+  </div>
+  <div class="tabs" id="dayTabs"></div>
+</header>
+
+<main id="app"></main>
+
+<div class="timer-fab">
+  <div class="timer-num" id="timerNum">60</div>
+  <div class="timer-presets">
+    <button data-t="45">45</button>
+    <button data-t="60" class="on">60</button>
+    <button data-t="90">90</button>
+    <button data-t="120">120</button>
+  </div>
+  <button class="timer-go" id="timerGo">▶</button>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const DAYS = [
+{ key:"upperA", label:"السبت", sub:"Upper A", exercises:[
+  {id:"mchestpress", ar:"ماكينة عرض الصدر", en:"Machine Chest Press", sets:"3×8-12", rest:"90 ث", muscle:"الصدر (80%) — الكتف الأمامي (15%) — الترايسبس (5%)", video:"https://www.youtube.com/shorts/Qu7-ceCvq7w", verify:"high", tip:"إذا حسيت الكتف أكتر من الصدر: راقب وضع الكوع، لا تخليه ينزل تحت خط الكتف."},
+  {id:"inclinedb", ar:"دمبل مائل للصدر", en:"Incline Dumbbell Press", sets:"3×8-12", rest:"90 ث", muscle:"أعلى الصدر — الكتف الأمامي", video:"https://www.youtube.com/@JeffNippard/search?query=Incline%20Dumbbell%20Press", verify:"fallback", tip:"زاوية 30-45 درجة مثالية. لا تخلي الكتف يلف للأمام وقت الدفع."},
+  {id:"latpulldown", ar:"سحب علوي", en:"Lat Pulldown", sets:"3×10-12", rest:"90 ث", muscle:"الظهر العريض (Lats) — مش البايسبس", video:"https://www.youtube.com/shorts/bNmvKpJSWKM", verify:"high", tip:"لو حسيت بايسبس بس: خفف الوزن وركز إنك تسحب بالكوع مش باليد."},
+  {id:"seatedrow", ar:"تجديف كيبل جالس", en:"Seated Cable Row", sets:"3×10-12", rest:"90 ث", muscle:"وسط الظهر", video:"https://www.tiktok.com/@deltabolic/video/7630186365342321936", verify:"high", tip:"لا تتكئ للخلف بقوة — خليها حركة كتفين للخلف مو جسم كامل."},
+  {id:"mshoulderpress", ar:"ماكينة كتف", en:"Machine Shoulder Press", sets:"2×10-12", rest:"90 ث", muscle:"الكتف الأمامي والجانبي", video:"https://www.tiktok.com/@deltabolic/video/7460671234355891462", verify:"high", tip:"ابدأ والساعدين شبه عموديين، ولا تخلي الترابيس يشتغل (اكتافك لتحت)."},
+  {id:"latraise", ar:"رفرفة جانبية دمبل", en:"Dumbbell Lateral Raise", sets:"3×12-15", rest:"60 ث", muscle:"الكتف الجانبي — ⚠️ لازم الترابيس ما يسيطر", video:"https://www.tiktok.com/@deltabolic/video/7440639070792879415", verify:"high", tip:"إذا الترابيس عم يشتغل أكتر: خفف الوزن وثبّت الكتف لتحت طول الحركة."},
+  {id:"cablecurl", ar:"بايسبس كيبل", en:"Cable Biceps Curl", sets:"3×10-12", rest:"60 ث", muscle:"البايسبس", video:"https://www.tiktok.com/@deltabolic/video/7473645877161233719", verify:"high", tip:"ثبّت الكوع بمكان واحد، لا تخليه يتحرك للأمام."},
+  {id:"ropepushdown", ar:"دفع حبل", en:"Rope Pushdown", sets:"3×10-12", rest:"60 ث", muscle:"الترايسبس", video:"https://www.youtube.com/@JeffNippard/search?query=Rope%20Pushdown", verify:"fallback", tip:"⚠️ إذا حسيت وجع بالكوع اليمين: خفف الوزن وركز الحركة تكون من الكوع بس."},
+  {id:"facepull", ar:"فيس بُل", en:"Face Pull", sets:"3×15", rest:"60 ث", muscle:"الكتف الخلفي — أعلى الظهر", video:"https://www.tiktok.com/@deltabolic/video/7427929995571465477", verify:"high", tip:"اسحب الحبل نحو وجهك مو صدرك، والمرفق لازم يعلى شوي."},
+]},
+{ key:"lowerA", label:"الأحد", sub:"Lower A", exercises:[
+  {id:"legpress", ar:"ضغط أرجل", en:"Leg Press", sets:"4×10", rest:"120 ث", muscle:"الكواد — الجلوت", video:"https://www.youtube.com/@JeffNippard/search?query=Leg%20Press", verify:"fallback", tip:"رجليك تحت = كواد أكتر. رجليك فوق = جلوت أكتر."},
+  {id:"rdl", ar:"رومانيان ديدلفت دمبل", en:"Romanian Dumbbell Deadlift", sets:"3×10", rest:"120 ث", muscle:"الهامسترنج — الجلوت", video:"https://www.youtube.com/@JeffNippard/search?query=Romanian%20Deadlift", verify:"fallback", tip:"حس بشد الهامسترنج قبل ما تنزل أكتر — الظهر لازم يضل مستقيم."},
+  {id:"legext", ar:"باسطة رجل", en:"Leg Extension", sets:"3×12", rest:"75 ث", muscle:"الكواد", video:"https://www.youtube.com/shorts/uM86QE59Tgc", verify:"high", tip:"مد الرجل بالكامل بدون ما تخبط بسرعة بالنهاية."},
+  {id:"legcurl", ar:"ثانية رجل", en:"Leg Curl", sets:"3×12", rest:"75 ث", muscle:"الهامسترنج", video:"https://www.tiktok.com/@deltabolic/video/7577965531286834433", verify:"high", tip:"خلي مؤخرتك ملزوقة بالمقعد طول الحركة."},
+  {id:"stcalf", ar:"رفعة سمانة واقف", en:"Standing Calf Raise", sets:"4×15", rest:"60 ث", muscle:"السمانة (الجاستروكنيميوس)", video:"https://www.youtube.com/@JeffNippard/search?query=Standing%20Calf%20Raise", verify:"fallback", tip:"وقفة كاملة بالأعلى + نزلة كاملة تحت خط المنصة = مدى حركة أفضل."},
+]},
+{ key:"upperB", label:"الثلاثاء", sub:"Upper B", exercises:[
+  {id:"inclinemachine", ar:"ماكينة صدر مائلة", en:"Incline Machine Press", sets:"3×10", rest:"90 ث", muscle:"أعلى الصدر", video:"https://www.youtube.com/@JeffNippard/search?query=Incline%20Machine%20Press", verify:"fallback", tip:"ركز الدفع من أعلى الصدر مش الكتف."},
+  {id:"pecdeck", ar:"بيك ديك", en:"Pec Deck", sets:"3×12", rest:"75 ث", muscle:"الصدر (عزل)", video:"https://www.youtube.com/@JeffNippard/search?query=Pec%20Deck", verify:"fallback", tip:"لا تخلي الكوع ينزل — خليه بخط الكتف."},
+  {id:"csrow", ar:"تجديف مسنود بالصدر", en:"Chest Supported Row", sets:"3×10", rest:"90 ث", muscle:"وسط الظهر", video:"https://www.youtube.com/@JeffNippard/search?query=Chest%20Supported%20Row", verify:"fallback", tip:"اعصر لوحي الكتف بالنهاية، بدون ما تستخدم زخم الجسم."},
+  {id:"cglatpull", ar:"سحب علوي قبضة ضيقة", en:"Close Grip Lat Pulldown", sets:"3×10", rest:"90 ث", muscle:"الظهر العريض — أسفله", video:"https://www.youtube.com/@JeffNippard/search?query=Close%20Grip%20Lat%20Pulldown", verify:"fallback", tip:"قبضة ضيقة = تركيز أكتر على أسفل اللاتس."},
+  {id:"reardelt", ar:"ماكينة كتف خلفي", en:"Rear Delt Machine", sets:"3×15", rest:"60 ث", muscle:"الكتف الخلفي", video:"https://www.youtube.com/@JeffNippard/search?query=Rear%20Delt%20Machine", verify:"fallback", tip:"حركة بطيئة ومسيطر عليها، بدون اهتزاز."},
+  {id:"cablelatraise", ar:"رفرفة جانبية كيبل", en:"Cable Lateral Raise", sets:"3×15", rest:"60 ث", muscle:"الكتف الجانبي", video:"https://www.youtube.com/@JeffNippard/search?query=Cable%20Lateral%20Raise", verify:"fallback", tip:"البكرة بارتفاع اليد بتزيد الشد بمرحلة الإطالة."},
+  {id:"hammercurl", ar:"همر كيرل", en:"Hammer Curl", sets:"3×12", rest:"60 ث", muscle:"البايسبس — العضلة الوسطى (Brachialis)", video:"https://www.youtube.com/@JeffNippard/search?query=Hammer%20Curl", verify:"fallback", tip:"قبضة محايدة طول الوقت (مو لف)."},
+  {id:"ropeext", ar:"مد ترايسبس حبل خلف الرأس", en:"Overhead Rope Extension", sets:"3×12", rest:"60 ث", muscle:"الترايسبس (الرأس الطويلة)", video:"https://www.youtube.com/@JeffNippard/search?query=Overhead%20Rope%20Extension", verify:"fallback", tip:"⚠️ إذا الكوع اليمين تعبان: قلل المدى وابدأ بوزن خفيف."},
+  {id:"cablecrunch", ar:"كرنش كيبل", en:"Cable Crunch", sets:"3×15", rest:"60 ث", muscle:"البطن", video:"https://www.youtube.com/@JeffNippard/search?query=Cable%20Crunch", verify:"fallback", tip:"الحركة من البطن (انحناء الجذع) مش من الأيدي."},
+  {id:"plank1", ar:"بلانك", en:"Plank", sets:"3×45-60 ث", rest:"45 ث", muscle:"الكور", video:"https://www.youtube.com/@JeffNippard/search?query=Plank", verify:"fallback", tip:"خط مستقيم من الكتف للكعب — لا ترفع أو تنزل الحوض."},
+]},
+{ key:"lowerB", label:"الأربعاء", sub:"Lower B", exercises:[
+  {id:"hacksquat", ar:"هاك سكوات", en:"Hack Squat", sets:"3×10", rest:"120 ث", muscle:"الكواد", video:"https://www.youtube.com/@JeffNippard/search?query=Hack%20Squat", verify:"fallback", tip:"القدم بنص المنصة تقريبًا لتوازن جيد بين الكواد والجلوت."},
+  {id:"smithsquat", ar:"سكوات سميث", en:"Smith Squat", sets:"3×10", rest:"120 ث", muscle:"الكواد — الجلوت", video:"https://www.youtube.com/@JeffNippard/search?query=Smith%20Machine%20Squat", verify:"fallback", tip:"قدمك شوي قدام الجسم عشان مسار البار العمودي."},
+  {id:"bulgarian", ar:"بلغاري سبليت سكوات", en:"Bulgarian Split Squat", sets:"3×10 لكل رجل", rest:"90 ث", muscle:"الكواد — الجلوت (حسب زاوية الجذع)", video:"https://www.tiktok.com/@deltabolic/video/7447369573457857798", verify:"high", tip:"جذع مستقيم = كواد أكتر. جذع مائل قدام = جلوت أكتر."},
+  {id:"legcurl2", ar:"ثانية رجل", en:"Leg Curl", sets:"3×12", rest:"75 ث", muscle:"الهامسترنج", video:"https://www.tiktok.com/@deltabolic/video/7577965531286834433", verify:"high", tip:"نفس ملاحظات يوم الأحد."},
+  {id:"legext2", ar:"باسطة رجل", en:"Leg Extension", sets:"3×12", rest:"75 ث", muscle:"الكواد", video:"https://www.youtube.com/shorts/uM86QE59Tgc", verify:"high", tip:"نفس ملاحظات يوم الأحد."},
+  {id:"seatedcalf", ar:"رفعة سمانة جالس", en:"Seated Calf Raise", sets:"4×15", rest:"60 ث", muscle:"السمانة (السوليس)", video:"https://www.youtube.com/@JeffNippard/search?query=Seated%20Calf%20Raise", verify:"fallback", tip:"الجلوس بيركز على العضلة العميقة أكتر (السوليس)."},
+]},
+{ key:"cardio", label:"الخميس", sub:"كارديو + بطن", exercises:[
+  {id:"inclinewalk", ar:"مشي مائل", en:"Incline Walk", sets:"25-30 دقيقة", rest:"—", muscle:"كارديو منخفض الشدة", video:"https://www.youtube.com/@JeffNippard/search?query=Incline%20Walk%20Cardio", verify:"fallback", tip:"ميل 8-12% وسرعة تمشي عادي — تقدر تحكي وانت ماشي."},
+  {id:"cablecrunch2", ar:"كرنش كيبل", en:"Cable Crunch", sets:"3×15", rest:"60 ث", muscle:"البطن", video:"https://www.youtube.com/@JeffNippard/search?query=Cable%20Crunch", verify:"fallback", tip:"نفس ملاحظات يوم الثلاثاء."},
+  {id:"hangingknee", ar:"رفع ركبتين معلق", en:"Hanging Knee Raise", sets:"3×12", rest:"60 ث", muscle:"أسفل البطن", video:"https://www.youtube.com/@JeffNippard/search?query=Hanging%20Knee%20Raise", verify:"fallback", tip:"ارفع الركب بدون ما تتأرجح — تحكم بالنزلة."},
+  {id:"plank2", ar:"بلانك", en:"Plank", sets:"3×45-60 ث", rest:"45 ث", muscle:"الكور", video:"https://www.youtube.com/@JeffNippard/search?query=Plank", verify:"fallback", tip:"نفس ملاحظات يوم الثلاثاء."},
+]},
+];
+
+/* ===================== STATE / STORAGE ===================== */
+const LS_KEY = "ironlog_v1";
+function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(LS_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+
+function getLog(exId){
+  const day = state[todayKey()] || {};
+  return day[exId] || {done:false, weight:"", reps:""};
+}
+function setLog(exId, patch){
+  const tk = todayKey();
+  state[tk] = state[tk] || {};
+  state[tk][exId] = Object.assign(getLog(exId), patch);
+  saveState(state);
+}
+
+/* ===================== RENDER ===================== */
+let activeDay = DAYS[0].key;
+
+function renderTabs(){
+  const el = document.getElementById("dayTabs");
+  el.innerHTML = "";
+  DAYS.forEach(d=>{
+    const b = document.createElement("div");
+    b.className = "tab" + (d.key===activeDay ? " active":"");
+    b.textContent = d.label + " · " + d.sub;
+    b.onclick = ()=>{ activeDay = d.key; render(); };
+    el.appendChild(b);
+  });
+}
+
+function verifyBadge(v){
+  if(v==="high") return '<span class="verify-tag v-high">✓ مصدر مؤكد</span>';
+  return '<span class="verify-tag v-fallback">🔍 بديل موثوق</span>';
+}
+
+function renderDay(){
+  const day = DAYS.find(d=>d.key===activeDay);
+  const app = document.getElementById("app");
+  const doneCount = day.exercises.filter(e=>getLog(e.id).done).length;
+  let html = `<div class="day-title"><span><b>${day.sub}</b> — ${day.exercises.length} حركات</span><span>${doneCount}/${day.exercises.length} ✅</span></div>`;
+
+  day.exercises.forEach(ex=>{
+    const log = getLog(ex.id);
+    html += `
+    <div class="card ${log.done?'done':''}" id="card-${ex.id}">
+      <div class="card-top">
+        <div class="ex-name">${ex.ar}<small>${ex.en}</small></div>
+        <div class="chk" onclick="toggleDone('${ex.id}')">${log.done?'✓':''}</div>
+      </div>
+      <div class="meta">
+        <span class="pill">${ex.sets}</span>
+        <span class="pill">راحة ${ex.rest}</span>
+        ${verifyBadge(ex.verify)}
+      </div>
+      <div class="muscle-line"><b>العضلة المستهدفة:</b> ${ex.muscle}</div>
+      <div class="log-grid">
+        <div class="log"><label>الوزن (كغ)</label><input type="number" inputmode="decimal" value="${log.weight}" onchange="updateLog('${ex.id}','weight',this.value)"></div>
+        <div class="log"><label>العدات المنفذة</label><input type="number" inputmode="numeric" value="${log.reps}" onchange="updateLog('${ex.id}','reps',this.value)"></div>
+      </div>
+      <div class="btnrow">
+        <a class="btn video" target="_blank" rel="noopener" href="${ex.video}">🎬 شاهد الحركة</a>
+      </div>
+      <div class="note">💡 ${ex.tip}</div>
+    </div>`;
+  });
+
+  app.innerHTML = html;
+  updateWeekPlate();
+}
+
+function toggleDone(id){
+  const cur = getLog(id);
+  setLog(id, {done: !cur.done});
+  renderDay();
+}
+function updateLog(id, field, val){
+  setLog(id, {[field]: val});
+}
+
+function updateWeekPlate(){
+  let total=0, done=0;
+  DAYS.forEach(d=> d.exercises.forEach(e=>{
+    total++;
+    if(getLog(e.id).done) done++;
+  }));
+  const pct = total? Math.round(done/total*100) : 0;
+  document.getElementById("weekPlate").style.setProperty("--pct", pct);
+  document.getElementById("weekPct").textContent = pct+"%";
+}
+
+function render(){ renderTabs(); renderDay(); }
+render();
+
+/* ===================== REST TIMER ===================== */
+let timerSeconds = 60, timerInterval = null, timerRunning = false;
+const timerNumEl = document.getElementById("timerNum");
+document.querySelectorAll(".timer-presets button").forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll(".timer-presets button").forEach(b=>b.classList.remove("on"));
+    btn.classList.add("on");
+    timerSeconds = parseInt(btn.dataset.t);
+    timerNumEl.textContent = timerSeconds;
+    clearInterval(timerInterval); timerRunning=false;
+    document.getElementById("timerGo").textContent="▶";
+  };
+});
+function beep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880; g.gain.value = 0.15;
+    o.start(); setTimeout(()=>{o.stop(); ctx.close();}, 300);
+  }catch(e){}
+}
+document.getElementById("timerGo").onclick = function(){
+  if(timerRunning){
+    clearInterval(timerInterval); timerRunning=false; this.textContent="▶";
+    return;
+  }
+  timerRunning = true; this.textContent="⏸";
+  timerInterval = setInterval(()=>{
+    timerSeconds--;
+    timerNumEl.textContent = Math.max(timerSeconds,0);
+    if(timerSeconds<=0){
+      clearInterval(timerInterval); timerRunning=false;
+      document.getElementById("timerGo").textContent="▶";
+      beep();
+      const activeBtn = document.querySelector(".timer-presets button.on");
+      timerSeconds = activeBtn? parseInt(activeBtn.dataset.t) : 60;
+      timerNumEl.textContent = timerSeconds;
+    }
+  }, 1000);
+};
+</script>
+</body>
+</html>
